@@ -1,0 +1,57 @@
+projects:
+  # Project display name. If empty, it defaults to the input directory name.
+  - name: chars
+    args:
+      # Input directory with images to pack.
+      input_dir: ./chars
+      # Output directory for .imageset + .edds (defaults to input_dir if empty).
+      output_dir: P:\beyond-bounds\data\images
+    # Prefix path stored inside .imageset texture reference.
+    # Example result: "<edds_path>/<name>.edds"
+    edds_path: beyond-bounds/data/images
+    # Skip writing when inputs are unchanged.
+    skip-unchanged: false
+    # Use CamelCase names in imageset output (default: false => snake_case).
+    camel_case: false
+    # Overwrite existing output files (default: false).
+    force: false
+    # Packing options.
+    packing:
+      # Minimum texture size (power of 2).
+      min_size: 256
+      # Maximum texture size (power of 2).
+      max_size: 4096
+      # Gap in pixels between images.
+      gap: 2
+      # Mipmap levels to write (0 = full chain, 1 = base only).
+      mipmaps: 0
+      # Prefer height over width for aspect ratio.
+      prefer_height: false
+      # Force square texture.
+      force_square: false
+      # Allow 90-degree rotation for better packing.
+      rotate: false
+      # Aspect penalty for non-square textures.
+      aspect_penalty: 0.25
+      # Packing rule: bssf | blsf | baf | bl | cp
+      rule: bl
+    # Input options.
+    input:
+      # Treat subdirectories as groups.
+      group_dirs: false
+      # Separator for group name in filename (e.g. "_" for "Group_Image.png").
+      group_separator: ""
+      # Downscale inputs so the longest side is at most N pixels (0 = off).
+      max_input_side: 0
+      # Allowed input formats (repeatable). Default: [png, tga, tiff, bmp]
+      in_format:
+        - png
+        - tga
+        - tiff
+        - bmp
+      # Color key as RRGGBB -> alpha=0 for bmp/tga/tiff by default.
+      alpha_key: ff00ff
+      # Disable color key transparency processing.
+      alpha_key_off: false
+      # Apply color key to all formats, including png.
+      alpha_key_all: false
