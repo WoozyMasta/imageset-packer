@@ -13,6 +13,24 @@ and this project adheres to [Semantic Versioning][].
 ### Removed
 -->
 
+## [0.1.1][] - 2026-02-07
+
+### Added
+
+* Added output format selection for atlas/convert flows:
+  `bgra8` (default) and new `dxt1`, `dxt5`.
+* Added encoder quality option (`0..10`) for DXT output
+  (`0` = library default).
+
+### Changed
+
+* Migrated internal DDS/EDDS/DXT paths to external packages:
+  `github.com/woozymasta/bcn` and `github.com/woozymasta/edds`.
+* Encoding/decoding performance is significantly improved by BCn-side
+  parallel processing (workers auto-scaled via `GOMAXPROCS` by default).
+
+[0.1.1]: https://github.com/WoozyMasta/imageset-packer/compare/v0.1.0...v0.1.1
+
 ## [0.1.0][] - 2026-01-25
 
 ### Added

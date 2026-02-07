@@ -223,6 +223,10 @@ projects:
 * Keep a clear folder structure and stable file names.
 * Supported atlas formats: `bgra8`, `dxt1`, `dxt5`.
 * Default atlas output is `bgra8` (`DXGI_FORMAT_B8G8R8A8_UNORM`).
+* For UI icon atlases, recommended baseline is:
+  `output_format: bgra8` and `mipmaps: 1`.
+* `dxt1` is suitable for opaque assets, but it does not preserve soft alpha.
+* If you need compressed output with transparency, prefer `dxt5`.
 * DXT quality uses `0..10`
   (`0` = library optimal default, `1` fastest, `8` high quality).
 * For UI icons and UI parts, avoid long mipmap chains:
