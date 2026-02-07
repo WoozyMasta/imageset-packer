@@ -9,14 +9,20 @@ import (
 	"strings"
 
 	"github.com/schwarzlichtbezirk/tga"
+	"github.com/woozymasta/bcn"
 	"golang.org/x/image/bmp"
 	"golang.org/x/image/tiff"
 
-	"github.com/woozymasta/imageset-packer/internal/edds"
+	"github.com/woozymasta/edds"
 )
 
 // Write saves an image to the given path based on its extension.
 func Write(path string, img image.Image) error {
+	return WriteWithOptions(path, img, nil)
+}
+
+// WriteWithOptions saves an image using optional DDS/EDDS encoding settings.
+func WriteWithOptions(path string, img image.Image, opts *EncodeSettings) error {
 	ext := strings.ToLower(strings.TrimPrefix(filepath.Ext(path), "."))
 	switch ext {
 	case "png":
@@ -52,10 +58,47 @@ func Write(path string, img image.Image) error {
 		return tiff.Encode(f, img, &tiff.Options{Compression: tiff.Deflate})
 
 	case "dds":
-		return writeDDSRGBA8(path, img)
+		cfg := effectiveEncodeSettings(opts)
+		if err := ValidateQualityLevel(cfg.Quality); err != nil {
+			return err
+		}
+
+		encOpts := &bcn.EncodeOptions{
+			QualityLevel: cfg.Quality,
+			Workers:      0,
+		}
+
+		dds, err := bcn.EncodeDDSWithOptions([]image.Image{img}, cfg.Format, encOpts)
+		if err != nil {
+			return err
+		}
+
+		f, err := os.Create(path)
+		if err != nil {
+			return err
+		}
+		defer func() { _ = f.Close() }()
+
+		return dds.Write(f)
 
 	case "edds":
-		return edds.WriteEDDS(img, path)
+		cfg := effectiveEncodeSettings(opts)
+		if cfg.Mipmaps < 0 {
+			return fmt.Errorf("mipmaps must be >= 0")
+		}
+		if err := ValidateQualityLevel(cfg.Quality); err != nil {
+			return err
+		}
+
+		return edds.WriteWithOptions(img, path, &edds.WriteOptions{
+			Format:     cfg.Format,
+			MaxMipMaps: cfg.Mipmaps,
+			Compress:   true,
+			EncodeOptions: &bcn.EncodeOptions{
+				QualityLevel: cfg.Quality,
+				Workers:      0,
+			},
+		})
 
 	default:
 		return fmt.Errorf("unsupported output format: %q", ext)

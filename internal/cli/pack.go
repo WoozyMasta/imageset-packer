@@ -9,7 +9,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/woozymasta/imageset-packer/internal/edds"
 	"github.com/woozymasta/imageset-packer/internal/imageio"
 	"github.com/woozymasta/imageset-packer/internal/imageset"
 	"github.com/woozymasta/imageset-packer/internal/packer"
@@ -19,10 +18,12 @@ import (
 // PackPackingFlags defines atlas packing parameters.
 type PackPackingFlags struct {
 	Rule          string  `short:"r" long:"rule" description:"Packing rule" default:"bl" choice:"bssf" choice:"blsf" choice:"baf" choice:"bl" choice:"cp" yaml:"rule"`
+	OutputFormat  string  `short:"F" long:"out-format" description:"Output format for DDS/EDDS" choice:"bgra8" choice:"dxt1" choice:"dxt5" default:"bgra8" yaml:"out_format"`
 	MinSize       int     `short:"m" long:"min-size" description:"Minimum texture size (power of 2)" default:"256" yaml:"min_size"`
 	MaxSize       int     `short:"M" long:"max-size" description:"Maximum texture size (power of 2)" default:"4096" yaml:"max_size"`
 	Gap           int     `short:"g" long:"gap" description:"Gap between images" default:"0" yaml:"gap"`
-	Mipmaps       int     `short:"x" long:"mipmaps" description:"Mipmap levels to write (0=full chain, 1=base only)" default:"0" yaml:"mipmaps"`
+	Quality       int     `short:"q" long:"quality" description:"DXT1/DXT5 quality level 1..10, 0=optimal" default:"0" yaml:"quality"`
+	Mipmaps       int     `short:"x" long:"mipmaps" description:"Mipmap levels for DDS/EDDS output, 0=full chain" default:"0" yaml:"mipmaps"`
 	AspectPenalty float64 `short:"a" long:"aspect-penalty" description:"Aspect penalty for non-square textures" default:"0.25" yaml:"aspect_penalty"`
 	PreferHeight  bool    `short:"p" long:"prefer-height" description:"Prefer height over width for aspect ratio" yaml:"prefer_height"`
 	ForceSquare   bool    `short:"S" long:"force-square" description:"Force square texture" yaml:"force_square"`
@@ -83,6 +84,13 @@ func runPack(opts *CmdPack) error {
 
 	if opts.Packing.Mipmaps < 0 {
 		return fmt.Errorf("mipmaps must be >= 0")
+	}
+	if err := imageio.ValidateQualityLevel(opts.Packing.Quality); err != nil {
+		return fmt.Errorf("invalid --quality: %w", err)
+	}
+	outputFormat, err := imageio.ParseOutputFormat(opts.Packing.OutputFormat)
+	if err != nil {
+		return fmt.Errorf("invalid --output-format: %w", err)
 	}
 
 	name := opts.Name
@@ -361,7 +369,11 @@ func runPack(opts *CmdPack) error {
 		return fmt.Errorf("failed to write imageset file: %w", err)
 	}
 
-	if err := edds.WriteEDDSWithMipmaps(result.Image, eddsPath, opts.Packing.Mipmaps); err != nil {
+	if err := imageio.WriteWithOptions(eddsPath, result.Image, &imageio.EncodeSettings{
+		Format:  outputFormat,
+		Quality: opts.Packing.Quality,
+		Mipmaps: opts.Packing.Mipmaps,
+	}); err != nil {
 		return fmt.Errorf("failed to write EDDS file: %w", err)
 	}
 

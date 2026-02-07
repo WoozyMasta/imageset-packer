@@ -10,10 +10,6 @@ just organize your source images into folders, run `pack`,
 and you get correct placement, good atlas density,
 and ready-to-use files for your DayZ mod.
 
-> [!IMPORTANT]  
-> The output packing format is **only** `DXGI_FORMAT_B8G8R8A8_UNORM`
-> (uncompressed BGRA8). This is intentional.
-
 <!-- markdownlint-disable-next-line MD033 -->
 ## Main commands <br clear="right"/>
 
@@ -50,6 +46,12 @@ imageset-packer pack ./icons ./out -x 3 -g 2 -f -P mod/data/images
 
 Packing with 3 mipmap levels, 2px gap, overwrite enabled,
 and the texture path set in the imageset.
+
+```bash
+imageset-packer pack ./icons -F dxt5 -q 8
+```
+
+Packing with DXT-compressed output format and explicit encoder quality.
 
 ```bash
 imageset-packer pack ./icons --skip-unchanged
@@ -97,6 +99,11 @@ Example:
 imageset-packer convert atlas.edds atlas.png
 ```
 
+```bash
+# PNG to EDDS with explicit format/quality
+imageset-packer convert icon.png icon.edds -F dxt1 -q 8 -x 1
+```
+
 ## Build automation
 
 Simple `.imageset-packer.yaml` example.
@@ -115,6 +122,8 @@ projects:
     packing:
       gap: 2
       mipmaps: 1
+      output_format: bgra8
+      quality: 0
     input:
       group_dirs: true
 
@@ -129,6 +138,8 @@ projects:
     packing:
       gap: 2
       mipmaps: 2
+      output_format: dxt5
+      quality: 8
     input:
       group_dirs: true
 ```
@@ -148,6 +159,8 @@ defaults: &defaults
   packing: &packing
     gap: 2
     mipmaps: 1
+    output_format: bgra8
+    quality: 0
   input: &input
     group_dirs: true
 
@@ -189,6 +202,10 @@ projects:
 ## Recommendations
 
 * Keep a clear folder structure and stable file names.
+* Supported atlas formats: `bgra8`, `dxt1`, `dxt5`.
+* Default atlas output is `bgra8` (`DXGI_FORMAT_B8G8R8A8_UNORM`).
+* DXT quality uses `0..10`
+  (`0` = library optimal default, `1` fastest, `8` high quality).
 * For UI icons and UI parts, avoid long mipmap chains:
   usually **1-4 levels** are enough.
 * If the build is automated and `.imageset`/`.edds` artifacts are not
@@ -212,7 +229,8 @@ projects:
 ---
 
 > [!WARNING]  
-> Windows + MSYS2/Git Bash may require disabling path conversion for `--edds-path`:
+> Windows + MSYS2/Git Bash may require disabling path conversion for
+> `--edds-path`:
 >
 > ```bash
 > MSYS2_ARG_CONV_EXCL='--edds-path;-P' go run ./cmd/imageset-packer/ pack ...

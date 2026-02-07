@@ -8,6 +8,10 @@ github.com/pierrec/lz4/v4 v4.1.25 h1:kocOqRffaIbU5djlIBr7Wh+cx82C0vtFb0fOurZHqD0
 github.com/pierrec/lz4/v4 v4.1.25/go.mod h1:EoQMVJgeeEOMsCqCzqFm2O0cJvljX2nGZjcRIPL34O4=
 github.com/schwarzlichtbezirk/tga v1.0.0 h1:iy2AFv+TQgVK5u703VLlKhqew8F90LJfyOfa36uVFQk=
 github.com/schwarzlichtbezirk/tga v1.0.0/go.mod h1:cUwm7hlnqqQx/y8kQ0BLPFVnyibAAZ5vAzH4+S5ln4U=
+github.com/woozymasta/bcn v0.1.3 h1:HyiwwbkHvXeDRM0wGdRojt1uzzwTnScrdAatb0XmeLE=
+github.com/woozymasta/bcn v0.1.3/go.mod h1:cxN8xsxZ2JiJLoduPifkXAcsTzRF28lP1/mChSxttnI=
+github.com/woozymasta/edds v0.1.1 h1:UEupuEUUeR6SoJtvGNbQ5HwyfBFlKnjvCHU6izew0xo=
+github.com/woozymasta/edds v0.1.1/go.mod h1:1fkkL5YcxjxkKoJXb8XVthfpYrUUIjwi4XwO3Y2QkPY=
 golang.org/x/image v0.35.0 h1:LKjiHdgMtO8z7Fh18nGY6KDcoEtVfsgLDPeLyguqb7I=
 golang.org/x/image v0.35.0/go.mod h1:MwPLTVgvxSASsxdLzKrl8BRFuyqMyGhLwmC+TO1Sybk=
 golang.org/x/sys v0.40.0 h1:DBZZqJ2Rkml6QMQsZywtnjnnGvHza6BTfYFWY9kjEWQ=

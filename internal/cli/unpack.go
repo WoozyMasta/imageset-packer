@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/woozymasta/imageset-packer/internal/edds"
+	"github.com/woozymasta/edds"
 	"github.com/woozymasta/imageset-packer/internal/imageio"
 	"github.com/woozymasta/imageset-packer/internal/imageset"
 )
@@ -38,7 +38,7 @@ func runUnpack(opts *CmdUnpack) error {
 		return fmt.Errorf("read imageset: %w", err)
 	}
 
-	atlas, err := edds.ReadEDDS(opts.Args.EDDSPath)
+	atlas, err := edds.Read(opts.Args.EDDSPath)
 	if err != nil {
 		return fmt.Errorf("read edds: %w", err)
 	}

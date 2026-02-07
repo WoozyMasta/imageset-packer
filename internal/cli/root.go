@@ -55,8 +55,9 @@ Examples:
 Examples:
   %s pack ./icons -x 3 -g 2
   %s pack ./icons ./out --force --group-dirs
-  %s pack ./icons -P mod/data/images -r bssf`,
-			prog, prog, prog,
+  %s pack ./icons -P mod/data/images -r bssf
+  %s pack ./icons --output-format dxt5 --quality 8`,
+			prog, prog, prog, prog,
 		),
 		&CmdPack{},
 	); err != nil {
@@ -87,8 +88,9 @@ Examples:
 
 Examples:
   %s convert icon.png icon.tga
-  %s convert atlas.edds atlas.png`,
-			prog, prog,
+  %s convert atlas.edds atlas.png
+  %s convert icon.png icon.edds --format dxt1 --quality 8 --mipmaps 1`,
+			prog, prog, prog,
 		),
 		&CmdConvert{},
 	); err != nil {

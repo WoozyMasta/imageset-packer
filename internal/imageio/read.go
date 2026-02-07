@@ -10,17 +10,19 @@ import (
 	_ "image/png"
 
 	_ "github.com/schwarzlichtbezirk/tga"
+	_ "github.com/woozymasta/bcn/dds"
+	_ "github.com/woozymasta/bcn/ktx"
 	_ "golang.org/x/image/bmp"
 	_ "golang.org/x/image/tiff"
 
-	"github.com/woozymasta/imageset-packer/internal/edds"
+	"github.com/woozymasta/edds"
 )
 
 // Read loads an image from a supported file format.
 func Read(path string) (image.Image, error) {
 	ext := strings.ToLower(strings.TrimPrefix(filepath.Ext(path), "."))
 	switch ext {
-	case "png", "bmp", "tga", "tiff":
+	case "png", "bmp", "tga", "tiff", "dds", "ktx":
 		f, err := os.Open(path)
 		if err != nil {
 			return nil, err
@@ -32,11 +34,8 @@ func Read(path string) (image.Image, error) {
 		}
 		return img, nil
 
-	case "dds":
-		return readDDS(path)
-
 	case "edds":
-		return edds.ReadEDDS(path)
+		return edds.Read(path)
 
 	default:
 		return nil, fmt.Errorf("unsupported input format: %q", ext)
@@ -47,7 +46,7 @@ func Read(path string) (image.Image, error) {
 func GetImageSize(path string) (width, height int, err error) {
 	ext := strings.ToLower(strings.TrimPrefix(filepath.Ext(path), "."))
 	switch ext {
-	case "png", "bmp", "tga", "tiff":
+	case "png", "bmp", "tga", "tiff", "dds", "ktx":
 		f, err := os.Open(path)
 		if err != nil {
 			return 0, 0, err
@@ -60,11 +59,8 @@ func GetImageSize(path string) (width, height int, err error) {
 		}
 		return cfg.Width, cfg.Height, nil
 
-	case "dds":
-		return readDDSSize(path)
-
 	case "edds":
-		cfg, err := edds.ReadEDDSConfig(path)
+		cfg, err := edds.ReadConfig(path)
 		if err != nil {
 			return 0, 0, err
 		}

@@ -25,6 +25,10 @@ projects:
       gap: 2
       # Mipmap levels to write (0 = full chain, 1 = base only).
       mipmaps: 0
+      # Output atlas format: bgra8 | dxt1 | dxt5
+      out_format: bgra8
+      # DXT quality level (0 = default, 1..10 = explicit quality scale).
+      quality: 0
       # Prefer height over width for aspect ratio.
       prefer_height: false
       # Force square texture.
