@@ -4,14 +4,33 @@
 <img src="logo.png" alt="ImageSet Packer" align="right" width="256">
 
 **imageset-packer** is a CLI tool for building DayZ `.imageset` + `.edds`
-from folders with PNG/TGA/TIFF/BMP files.  
+from folders with PNG/TGA/TIFF/BMP files.
+
 It replaces the routine manual atlas creation in Workbench:
 just organize your source images into folders, run `pack`,
 and you get correct placement, good atlas density,
 and ready-to-use files for your DayZ mod.
 
+Typical workflow:
+prepare source icons in a folder tree, run one command,
+and get production-ready outputs:
+
+* `.edds` atlas with configurable format (`bgra8`, `dxt1`, `dxt5`)
+* `.imageset` descriptor with positions/sizes and optional groups
+* optional mipmap chain and quality control for DXT compression
+* stable output naming for automated builds and CI pipelines
+
+What this utility gives you in practice:
+
+* no manual sprite placement in Workbench
+* deterministic atlas generation for repeatable builds
+* YAML-based multi-project build mode for larger mod repositories
+* conversion and unpack helpers for migration from legacy atlases
+
 <!-- markdownlint-disable-next-line MD033 -->
-## Main commands <br clear="right"/>
+<br clear="right"/>
+
+## Main commands
 
 Help for available commands
 
