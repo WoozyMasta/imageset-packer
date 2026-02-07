@@ -42,12 +42,12 @@ LDFLAGS_X := \
 	-X '$(MODULE)/internal/vars.URL=$(URL)'
 
 # ---------------------------------------------------------------------------
-.PHONY: all build release clean tidy download fmt verify vet tools lint align align-fix \
+.PHONY: all build release clean tidy download fmt fmt-check verify vet tools lint align align-fix \
         test sbom sbom-app sbom-bin release-notes _build_one _sbom_bin_one
 
 all: tools check release
 
-check: download tidy verify vet fmt lint align test
+check: download tidy verify vet fmt-check lint align test
 
 clean:
 	rm -rf $(OUTPUT_DIR)
@@ -107,7 +107,15 @@ download:
 	$(GO) mod download
 
 fmt:
-	$(GO) fmt ./...
+	gofmt -w .
+
+fmt-check:
+	@unformatted=$$(gofmt -l .); \
+	if [ -n "$$unformatted" ]; then \
+		echo "$$unformatted"; \
+		echo "gofmt: files need formatting"; \
+		exit 1; \
+	fi
 
 verify:
 	$(GO) mod verify
