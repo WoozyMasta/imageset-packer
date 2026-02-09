@@ -13,6 +13,20 @@ and this project adheres to [Semantic Versioning][].
 ### Removed
 -->
 
+## [0.1.2][] - 2026-02-10
+
+### Changed
+
+* PNG encoding and decoding functions have been sped up by switching
+  to the `github.com/woozymasta/png` library.
+
+### Fixed
+
+* An over-check in the `convert` command prevented conversion to
+  non-BCn-based images.
+
+[0.1.2]: https://github.com/WoozyMasta/imageset-packer/compare/v0.1.1...v0.1.2
+
 ## [0.1.1][] - 2026-02-07
 
 ### Added
