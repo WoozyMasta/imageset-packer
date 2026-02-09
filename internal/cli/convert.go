@@ -56,9 +56,6 @@ func (c *CmdConvert) Execute(args []string) error {
 	}
 
 	if ext != "dds" && ext != "edds" {
-		if strings.TrimSpace(c.Format) != "" || c.Quality != 0 || c.Mipmaps != 0 {
-			return fmt.Errorf("--format/--quality/--mipmaps are supported only for dds/edds output")
-		}
 		return imageio.Write(c.Args.Output, img)
 	}
 	if ext == "dds" && c.Mipmaps != 0 {
