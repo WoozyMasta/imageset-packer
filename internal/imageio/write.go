@@ -3,13 +3,13 @@ package imageio
 import (
 	"fmt"
 	"image"
-	"image/png"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/schwarzlichtbezirk/tga"
 	"github.com/woozymasta/bcn"
+	"github.com/woozymasta/png"
 	"golang.org/x/image/bmp"
 	"golang.org/x/image/tiff"
 

@@ -7,11 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	_ "image/png"
-
 	_ "github.com/schwarzlichtbezirk/tga"
 	_ "github.com/woozymasta/bcn/dds"
 	_ "github.com/woozymasta/bcn/ktx"
+	_ "github.com/woozymasta/png"
 	_ "golang.org/x/image/bmp"
 	_ "golang.org/x/image/tiff"
 
