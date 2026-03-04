@@ -51,6 +51,9 @@ imageset-packer pack -h
 Packs a folder of images into a single atlas (`.edds`) and
 a `.imageset` description file.
 
+Packing heuristic reference with visuals and explanations:
+<https://github.com/WoozyMasta/atlasforge/blob/master/README.md#packing-examples>
+
 Examples:
 
 ```bash
