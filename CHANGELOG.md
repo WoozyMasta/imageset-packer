@@ -13,6 +13,19 @@ and this project adheres to [Semantic Versioning][].
 ### Removed
 -->
 
+## [0.1.3][] - 2026-03-05
+
+### Changed
+
+* `pack` command now uses public `github.com/woozymasta/atlasforge`
+  instead of legacy internal packer implementation.
+* `pack` and `unpack` now use public `github.com/woozymasta/imageset`
+  for `.imageset` model and read/write flows.
+* TGA read/write path switched to `github.com/woozymasta/tga`.
+* New `ff` (first fit) packing rule.
+
+[0.1.3]: https://github.com/WoozyMasta/imageset-packer/compare/v0.1.2...v0.1.3
+
 ## [0.1.2][] - 2026-02-10
 
 ### Changed
