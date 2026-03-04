@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/schwarzlichtbezirk/tga"
 	"github.com/woozymasta/bcn"
 	"github.com/woozymasta/png"
+	"github.com/woozymasta/tga"
 	"golang.org/x/image/bmp"
 	"golang.org/x/image/tiff"
 

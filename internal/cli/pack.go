@@ -9,15 +9,15 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/woozymasta/atlasforge"
+	"github.com/woozymasta/imageset"
 	"github.com/woozymasta/imageset-packer/internal/imageio"
-	"github.com/woozymasta/imageset-packer/internal/imageset"
-	"github.com/woozymasta/imageset-packer/internal/packer"
 	"golang.org/x/image/draw"
 )
 
 // PackPackingFlags defines atlas packing parameters.
 type PackPackingFlags struct {
-	Rule          string  `short:"r" long:"rule" description:"Packing rule" default:"bl" choice:"bssf" choice:"blsf" choice:"baf" choice:"bl" choice:"cp" yaml:"rule"`
+	Rule          string  `short:"r" long:"rule" description:"Packing rule" default:"bl" choice:"bssf" choice:"blsf" choice:"baf" choice:"bl" choice:"cp" choice:"ff" yaml:"rule"`
 	OutputFormat  string  `short:"F" long:"out-format" description:"Output format for DDS/EDDS" choice:"bgra8" choice:"dxt1" choice:"dxt5" default:"bgra8" yaml:"out_format"`
 	MinSize       int     `short:"m" long:"min-size" description:"Minimum texture size (power of 2)" default:"256" yaml:"min_size"`
 	MaxSize       int     `short:"M" long:"max-size" description:"Maximum texture size (power of 2)" default:"4096" yaml:"max_size"`
@@ -269,28 +269,28 @@ func runPack(opts *CmdPack) error {
 		}
 	}
 
-	imageInfos := make([]packer.ImageInfo, 0, len(imageFiles))
+	sprites := make([]atlasforge.Sprite, 0, len(imageFiles))
 	for _, imgFile := range imageFiles {
-		imageInfos = append(imageInfos, packer.ImageInfo{
-			Name:   imgFile.name,
+		sprites = append(sprites, atlasforge.Sprite{
+			ID:     imgFile.name,
 			Width:  imgFile.width,
 			Height: imgFile.height,
 			Image:  imgFile.image,
 		})
 	}
 
-	cfg := packer.Config{
+	cfg := atlasforge.Options{
 		MinSize:       opts.Packing.MinSize,
 		MaxSize:       opts.Packing.MaxSize,
-		Gap:           opts.Packing.Gap,
+		Padding:       opts.Packing.Gap,
 		PreferHeight:  opts.Packing.PreferHeight,
 		ForceSquare:   opts.Packing.ForceSquare,
 		AllowRotate:   opts.Packing.AllowRotate,
 		AspectPenalty: opts.Packing.AspectPenalty,
-		Rule:          parseRule(opts.Packing.Rule),
+		Heuristic:     parseRule(opts.Packing.Rule),
 	}
 
-	result, err := packer.Pack(imageInfos, cfg)
+	result, err := atlasforge.Pack(sprites, cfg)
 	if err != nil {
 		return fmt.Errorf("failed to pack images: %w", err)
 	}
@@ -299,15 +299,18 @@ func runPack(opts *CmdPack) error {
 		return fmt.Errorf("failed to create output directory: %w", err)
 	}
 
-	placementMap := make(map[string]packer.Placement, len(result.Placements))
-	for _, placement := range result.Placements {
-		placementMap[placement.Name] = placement
+	placementMap := make(map[string]atlasforge.Placement, len(result.Layout.Placements))
+	for _, placement := range result.Layout.Placements {
+		placementMap[placement.ID] = placement
 	}
 
-	imagesetData := &imageset.ImageSetClass{
-		Name:    name,
-		RefSize: [2]int{result.Width, result.Height},
-		Textures: []imageset.ImageSetTextureClass{
+	imagesetData := &imageset.Document{
+		Name: name,
+		RefSize: imageset.Size{
+			Width:  result.Layout.Width,
+			Height: result.Layout.Height,
+		},
+		Textures: []imageset.Texture{
 			{
 				Mpix: 1,
 				Path: formatEddsRefPath(opts.Path, name),
@@ -315,8 +318,8 @@ func runPack(opts *CmdPack) error {
 		},
 	}
 
-	groupsMap := make(map[string][]imageset.ImageSetDefClass)
-	var rootImages []imageset.ImageSetDefClass
+	groupsMap := make(map[string][]imageset.Image)
+	var rootImages []imageset.Image
 
 	for _, imgFile := range imageFiles {
 		placement, ok := placementMap[imgFile.name]
@@ -324,10 +327,16 @@ func runPack(opts *CmdPack) error {
 			return fmt.Errorf("placement not found for image %q", imgFile.name)
 		}
 
-		imgDef := imageset.ImageSetDefClass{
+		imgDef := imageset.Image{
 			Name: imgFile.name,
-			Pos:  [2]int{placement.X, placement.Y},
-			Size: [2]int{placement.Width, placement.Height},
+			Pos: imageset.Point{
+				X: placement.X,
+				Y: placement.Y,
+			},
+			Size: imageset.Size{
+				Width:  placement.Width,
+				Height: placement.Height,
+			},
 		}
 
 		if imgFile.groupName != "" {
@@ -338,7 +347,7 @@ func runPack(opts *CmdPack) error {
 	}
 
 	if len(groupsMap) > 0 {
-		imagesetData.Groups = make([]imageset.ImageSetGroupClass, 0, len(groupsMap))
+		imagesetData.Groups = make([]imageset.Group, 0, len(groupsMap))
 		groupNames := make([]string, 0, len(groupsMap))
 		for groupName := range groupsMap {
 			groupNames = append(groupNames, groupName)
@@ -346,7 +355,7 @@ func runPack(opts *CmdPack) error {
 		sort.Strings(groupNames)
 
 		for _, groupName := range groupNames {
-			imagesetData.Groups = append(imagesetData.Groups, imageset.ImageSetGroupClass{
+			imagesetData.Groups = append(imagesetData.Groups, imageset.Group{
 				Name:   groupName,
 				Images: groupsMap[groupName],
 			})
@@ -365,7 +374,9 @@ func runPack(opts *CmdPack) error {
 	}
 	defer func() { _ = imagesetFile.Close() }()
 
-	if err := imageset.Write(imagesetFile, imagesetData, opts.Camel); err != nil {
+	if err := imageset.Write(imagesetFile, imagesetData, &imageset.FormatOptions{
+		UseCamelCaseNames: opts.Camel,
+	}); err != nil {
 		return fmt.Errorf("failed to write imageset file: %w", err)
 	}
 
@@ -384,9 +395,22 @@ func runPack(opts *CmdPack) error {
 	}
 
 	if name != "" {
-		fmt.Printf("Packed %d images from %s as %s into %dx%d\n", len(imageInfos), opts.Args.Input, name, result.Width, result.Height)
+		fmt.Printf(
+			"Packed %d images from %s as %s into %dx%d\n",
+			len(sprites),
+			opts.Args.Input,
+			name,
+			result.Layout.Width,
+			result.Layout.Height,
+		)
 	} else {
-		fmt.Printf("Packed %d images from %s into %dx%d\n", len(imageInfos), opts.Args.Input, result.Width, result.Height)
+		fmt.Printf(
+			"Packed %d images from %s into %dx%d\n",
+			len(sprites),
+			opts.Args.Input,
+			result.Layout.Width,
+			result.Layout.Height,
+		)
 	}
 	fmt.Printf("Outputs: %s, %s\n", imagesetPath, eddsPath)
 
@@ -538,20 +562,22 @@ func splitGroupName(filename, separator string) (groupName, imageName string) {
 }
 
 // parseRule parses the packing rule.
-func parseRule(s string) packer.Rule {
+func parseRule(s string) atlasforge.Heuristic {
 	switch strings.ToLower(strings.TrimSpace(s)) {
 	case "bssf":
-		return packer.BestShortSideFit
+		return atlasforge.HeuristicBestShortSideFit
 	case "blsf":
-		return packer.BestLongSideFit
+		return atlasforge.HeuristicBestLongSideFit
 	case "baf":
-		return packer.BestAreaFit
+		return atlasforge.HeuristicBestAreaFit
 	case "bl":
-		return packer.BottomLeft
+		return atlasforge.HeuristicBottomLeft
 	case "cp":
-		return packer.ContactPoint
+		return atlasforge.HeuristicContactPoint
+	case "ff":
+		return atlasforge.HeuristicFirstFit
 	default:
-		return packer.BestShortSideFit
+		return atlasforge.HeuristicBestShortSideFit
 	}
 }
 

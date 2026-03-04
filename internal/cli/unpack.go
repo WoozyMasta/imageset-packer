@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/woozymasta/edds"
+	"github.com/woozymasta/imageset"
 	"github.com/woozymasta/imageset-packer/internal/imageio"
-	"github.com/woozymasta/imageset-packer/internal/imageset"
 )
 
 // CmdUnpack extracts images from an imageset/edds pair.
@@ -33,7 +33,7 @@ func (c *CmdUnpack) Execute(args []string) error {
 }
 
 func runUnpack(opts *CmdUnpack) error {
-	is, err := imageset.ReadFile(opts.Args.ImageSetPath)
+	is, err := imageset.ParseFile(opts.Args.ImageSetPath)
 	if err != nil {
 		return fmt.Errorf("read imageset: %w", err)
 	}
@@ -44,8 +44,8 @@ func runUnpack(opts *CmdUnpack) error {
 	}
 
 	// autoscale by RefSize (imageset) vs real atlas size (edds)
-	refW := is.RefSize[0]
-	refH := is.RefSize[1]
+	refW := is.RefSize.Width
+	refH := is.RefSize.Height
 
 	b := atlas.Bounds()
 	atlasW := b.Dx()
@@ -114,8 +114,8 @@ func runUnpack(opts *CmdUnpack) error {
 }
 
 // writeOne writes a single image to the output directory.
-func writeOne(atlas image.Image, def imageset.ImageSetDefClass, sx, sy int, baseDir, groupDir, format string, overwrite bool) error {
-	sub, err := crop(atlas, def.Pos[0]*sx, def.Pos[1]*sy, def.Size[0]*sx, def.Size[1]*sy)
+func writeOne(atlas image.Image, def imageset.Image, sx, sy int, baseDir, groupDir, format string, overwrite bool) error {
+	sub, err := crop(atlas, def.Pos.X*sx, def.Pos.Y*sy, def.Size.Width*sx, def.Size.Height*sy)
 	if err != nil {
 		return fmt.Errorf("crop %q: %w", def.Name, err)
 	}
@@ -181,15 +181,15 @@ func sanitizeName(s string) string {
 }
 
 // deduplicateDefs deduplicates the image definitions.
-func deduplicateDefs(defs []imageset.ImageSetDefClass) []imageset.ImageSetDefClass {
+func deduplicateDefs(defs []imageset.Image) []imageset.Image {
 	if len(defs) <= 1 {
 		return defs
 	}
 
 	seen := make(map[[4]int]struct{}, len(defs))
-	out := make([]imageset.ImageSetDefClass, 0, len(defs))
+	out := make([]imageset.Image, 0, len(defs))
 	for _, def := range defs {
-		key := [4]int{def.Pos[0], def.Pos[1], def.Size[0], def.Size[1]}
+		key := [4]int{def.Pos.X, def.Pos.Y, def.Size.Width, def.Size.Height}
 		if _, ok := seen[key]; ok {
 			continue
 		}

@@ -37,7 +37,7 @@ projects:
       rotate: false
       # Aspect penalty for non-square textures.
       aspect_penalty: 0.25
-      # Packing rule: bssf | blsf | baf | bl | cp
+      # Packing rule: bssf | blsf | baf | bl | cp | ff
       rule: bl
     # Input options.
     input:

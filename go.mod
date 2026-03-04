@@ -6,10 +6,12 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/creasty/defaults v1.8.0
 	github.com/jessevdk/go-flags v1.6.1
-	github.com/schwarzlichtbezirk/tga v1.0.0
+	github.com/woozymasta/atlasforge v0.1.0
 	github.com/woozymasta/bcn v0.1.3
 	github.com/woozymasta/edds v0.1.1
+	github.com/woozymasta/imageset v0.1.0
 	github.com/woozymasta/png v1.0.0
+	github.com/woozymasta/tga v1.0.0
 	golang.org/x/image v0.36.0
 	gopkg.in/yaml.v3 v3.0.1
 )
